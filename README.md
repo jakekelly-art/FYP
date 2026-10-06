@@ -1,5 +1,5 @@
-# WEB PET
-
+# WEB PET *proof of concept*
+![WEB PET prototype title](read_me_imgs/CONCEPT_ART_2.png)
 *The prototype explores how a player will create, customise, and interact with a companion through a web interface. It focuses on testing the main gameplay idea rather than presenting a complete game!*
 
 ## Proof of Concept
