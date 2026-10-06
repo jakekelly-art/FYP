@@ -90,7 +90,7 @@ The final appearance will develop through concept art and prototype testing.
 
 ![WEB PET prototype screenshot](read_me_imgs/CONCEPT_ART_1.png)
 
-*Early prototype of the WEB PET interface.*
+*Early prototype of the WEB PET.*
 
 ## Current Scope
 
