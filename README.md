@@ -87,7 +87,11 @@ The visual design would include:
 The final appearance will develop through concept art and prototype testing.
 
 ## Concept Art
-(read_me_imgs/CONCEPT_ART_1.png)
+
+![WEB PET prototype screenshot](read_me_imgs/CONCEPT_ART_1.png)
+
+*Early prototype of the WEB PET interface.*
+
 ## Current Scope
 
 The first version will focus on:
