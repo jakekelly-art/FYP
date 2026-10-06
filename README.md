@@ -12,10 +12,10 @@ The player will be able to interact with a character, interact with their basic 
 
 WEB PET is inspired by virtual-pet games, life simulators, social games, and creator-focused games such as:
 
-- *Tomodachi Life*
-- *Tamagotchi*
-- *PewDiePie’s Tuber Simulator*
-- *Club Penguin*
+- *Tomodachi Life* (Video Reference)
+- *Tamagotchi* (Physical Reference)
+- *PewDiePie’s Tuber Simulator* (Physical Reference)
+- *Club Penguin / Club Penguin Journey* (Physical Reference)
 
 The prototype will use these ideas as general inspiration while developing its own original character, setting, artwork, and interfaces.
 
@@ -87,7 +87,7 @@ The visual design would include:
 The final appearance will develop through concept art and prototype testing.
 
 ## Concept Art
-
+(read_me_imgs/CONCEPT_ART_1.png)
 ## Current Scope
 
 The first version will focus on:
