@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>WEBPET</title>
+</head>
+<body>
+  <main>
+    <h1>WEBPET Proto</h1>
+    <div id="pet">
+      <img id="petImage" src="age_1.png">
+    </div>
+    <p id="message">keep hunger from getting too high, and happiness from getting too low!</p>
+
+    <div>
+      hunger: <span id="hungerText">20</span>/100
+      <progress id="hungerBar" max="100" value="20"></progress>
+    </div>
+
+    <div>
+      happiness: <span id="happinessText">80</span>/100
+      <progress id="happinessBar" max="100" value="80"></progress>
+    </div>
+
+    <button id="feedButton">Feed </button>
+    <button id="playButton">Play</button>
+  </main>
+
+  <script>
+    let hunger = 20;
+    let happiness = 80;
+    let age = 1;
+
+    const petImage = document.getElementById("petImage");
+    const message = document.getElementById("message");
+
+    function updateDisplay() {
+      document.getElementById("hungerText").textContent = hunger;
+      document.getElementById("hungerBar").value = hunger;
+      document.getElementById("happinessText").textContent = happiness;
+
+      document.getElementById("happinessBar").value = happiness;
+
+      petImage.src = `age_${age}.png`;
+      petImage.alt = `Your pet, age ${age}`;
+    }
+    //meet requirements for age increase, hunger < 50, happiness > 50
+    function checkAge() {
+      if (age < 3 && hunger < 50 && happiness > 50) {
+        age += 1;
+        updateDisplay();
+      }
+// miliseconds until the next minute
+      const now = new Date();
+      const millisecondsUntilNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+      setTimeout(checkAge, millisecondsUntilNextMinute); //set timeout to check age again at the start of the next minute
+    }
+
+    document.getElementById("feedButton").addEventListener("click", () => {
+      hunger = Math.max(0, hunger - 20);
+      message.textContent = "Yum!";
+      updateDisplay();
+    });
+
+    document.getElementById("playButton").addEventListener("click", () => {
+      happiness = Math.min(100, happiness + 15);
+      hunger = Math.min(100, hunger + 8);
+      message.textContent = "Your pet had fun";
+      updateDisplay();
+    });
+
+    //updater for hunger and happy every 5 secs
+    setInterval(() => {
+      hunger = Math.min(100, hunger + 2);
+      happiness = Math.max(0, happiness - 1);
+
+      if (hunger >= 90) {
+        message.textContent = "Your feels quite hungry";
+      } else if (happiness <= 15) {
+        message.textContent = "Your pet is sad";
+      }
+
+      updateDisplay();
+    }, 5000); 
+
+     //initial display 
+    updateDisplay();
+
+    //check at the beginning of the next minute
+    const currentTime = new Date();
+    const millisecondsUntilNextMinute = (60 - currentTime.getSeconds()) * 1000 - currentTime.getMilliseconds();
+    setTimeout(checkAge, millisecondsUntilNextMinute);
+  </script>
+</body>
+</html>
+
