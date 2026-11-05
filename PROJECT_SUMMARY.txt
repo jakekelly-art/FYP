@@ -1,0 +1,21 @@
+FYP PROJECT SUMMARY
+
+Website
+- Built a SvelteKit website with Home, Game, Photo Album, and Settings navigation.
+- Added the Geo font, a dark page background, and subtle CRT scanlines.
+- Styled the sidebar with a logo, active navigation state, hover movement, translucent background, and blur.
+
+Pet Room
+- Added an 800 x 800 game canvas showing the black and red walls and grey floor.
+- Made the canvas background transparent while keeping the room surfaces at their original solid colors, allowing the website background to show outside the room.
+- Added a player hitbox with the circle body sprite and face sprite layered and positioned on top.
+- Added roaming, idle movements, cursor attention, and a petting response when the pet is idle.
+- Saved the pet's movement state and hunger between visits.
+
+Hunger and Food
+- Added a basic hunger number at the top of the canvas. Hunger decreases over time and is persisted locally.
+- Added a draggable placeholder food box. It can be moved around the canvas, including over the walls.
+- Added global pointer tracking, a small release toss, gravity, and floor collision for the food. After the food settles, the pet walks toward it.
+
+Validation
+- The latest Svelte check passed with 0 errors and 0 warnings.
