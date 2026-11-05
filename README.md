@@ -1,6 +1,6 @@
 READING WEEK SUMMARY
 
-![SVELTE]("FYP\my-websit\src\lib\assets\favicon.svg")
+![SVELTE](my-websit/src/lib/assets/favicon.svg)
 
 - Built a Svelte Kit website with Home and Game navigation.
 - Added CSS
