@@ -1,3 +1,21 @@
+READING WEEK SUMMARY
+
+![SVELTE]("FYP\my-websit\src\lib\assets\favicon.svg")
+
+- Built a Svelte Kit website with Home and Game navigation.
+- Added CSS
+- Styled the sidebar with an active hover state, hover movement, translucent background,
+Pet Room
+- Added an 800 x 800 game canvas showing the black and red walls and grey floor.
+- Added a player hitbox with the circle body sprite and face sprite layered.
+- Added roaming, idle movements, gaze and a petting response when the pet is idle.
+- Saved the pet's movement state and hunger between visits.
+
+Hunger and Food
+- Added a basic hunger number at the top of the canvas. Hunger decreases over time
+- Added a draggable placeholder food box. It can be moved around the canvas, including over the walls.
+- Added global pointer tracking, a small release toss, gravity, and floor collision for the food. After the food settles, the pet walks toward it.
+
 ![WEB PET prototype title](read_me_imgs/CONCEPT_ART_2.png)
 *The prototype explores how a player will create, customise, and interact with a companion through a web interface. It focuses on testing the main gameplay idea rather than presenting a complete game!*
 
