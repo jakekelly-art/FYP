@@ -3,9 +3,10 @@
   import circleBodySource from '#lib/assets/CIRCLE_BODY.png';
   import circleFaceSource from '#lib/assets/FACE_CIRCLE_1.png';
 
+  let { showCharacter = true } = $props();
+
   /** @type {HTMLCanvasElement} */
   let canvas;
-  let hunger = 100;
 
   onMount(() => {
     const context = canvas.getContext('2d');
@@ -15,45 +16,7 @@
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const circleBody = new Image();
     const circleFace = new Image();
-    const hungerStorageKey = 'pet-room-hunger-v1';
-    const hungerState = {
-      value: 100,
-      updatedAt: Date.now()
-    };
-    const savedHunger = localStorage.getItem(hungerStorageKey);
-    if (savedHunger) {
-      const parsedHunger = JSON.parse(savedHunger);
-      if (
-        typeof parsedHunger !== 'object' ||
-        parsedHunger === null ||
-        !Number.isFinite(parsedHunger.value) ||
-        parsedHunger.value < 0 ||
-        parsedHunger.value > 100 ||
-        !Number.isFinite(parsedHunger.updatedAt)
-      ) {
-        throw new Error('Saved pet hunger data is invalid.');
-      }
-
-      hungerState.value = parsedHunger.value;
-      hungerState.updatedAt = parsedHunger.updatedAt;
-    }
-
-    /** @param {number} now */
-    const updateHunger = (now) => {
-      const elapsed = Math.max(0, now - hungerState.updatedAt);
-      hungerState.value = Math.max(
-        0,
-        hungerState.value - (elapsed / (24 * 60 * 60 * 1000)) * 100
-      );
-      hungerState.updatedAt = now;
-      hunger = Math.floor(hungerState.value);
-    };
-    updateHunger(Date.now());
-
-    const persistHunger = () => {
-      updateHunger(Date.now());
-      localStorage.setItem(hungerStorageKey, JSON.stringify(hungerState));
-    };
+    localStorage.removeItem('pet-room-hunger-v1');
 
     /**
      * @param {Array<[number, number]>} points
@@ -86,21 +49,6 @@
       pauseDuration: 0,
       walking: false,
       savedAt: Date.now()
-    };
-    const foodSize = 42;
-    const food = {
-      x: 570,
-      y: 610,
-      dragging: false,
-      offsetX: 0,
-      offsetY: 0,
-      velocityX: 0,
-      velocityY: 0,
-      physicsActive: false,
-      waitingForPet: false,
-      lastPointerX: 570,
-      lastPointerY: 610,
-      lastPointerTime: 0
     };
     const idleAction = {
       type: 'none',
@@ -192,50 +140,6 @@
       };
     };
 
-    /** @param {number} x */
-    const getFloorTop = (x) => (x <= 400 ? 564 - x * 0.47 : 376 + (x - 400) * 0.47);
-
-    /** @param {number} x */
-    const getFloorBottom = (x) =>
-      x <= 400 ? 564 + x * 0.59 : 800 - (x - 400) * 0.59;
-
-    /** @param {number} foodY */
-    const getFoodReachBounds = (foodY) => {
-      const targetY = Math.min(730, Math.max(440, foodY + foodSize / 2 + 10));
-      const floorBounds = getFloorBounds(targetY);
-      const depthScale = 0.62 + ((targetY - 440) / 290) * 0.38;
-      const playerPadding = (playerWidth * depthScale) / 2 + 14;
-      return {
-        left: floorBounds.left + playerPadding,
-        right: floorBounds.right - playerPadding
-      };
-    };
-
-    const drawFood = () => {
-      context.save();
-      context.fillStyle = '#f4a340';
-      context.fillRect(food.x - foodSize / 2, food.y - foodSize / 2, foodSize, foodSize);
-      context.strokeStyle = '#202020';
-      context.lineWidth = 3;
-      context.strokeRect(food.x - foodSize / 2, food.y - foodSize / 2, foodSize, foodSize);
-      context.fillStyle = '#202020';
-      context.font = 'bold 10px sans-serif';
-      context.textAlign = 'center';
-      context.textBaseline = 'middle';
-      context.fillText('FOOD', food.x, food.y);
-      context.restore();
-    };
-
-    const drawHunger = () => {
-      context.save();
-      context.fillStyle = '#fff';
-      context.font = '24px sans-serif';
-      context.textAlign = 'left';
-      context.textBaseline = 'top';
-      context.fillText(`Hunger: ${hunger}`, 20, 18);
-      context.restore();
-    };
-
     /** @param {number} time */
     const chooseDestination = (time) => {
       movement.startX = movement.x;
@@ -256,83 +160,6 @@
       movement.walkDuration = Math.max(1800, distance * 10);
       movement.pauseDuration = 1200 + Math.random() * 1800;
       movement.walking = true;
-    };
-
-    /** @param {number} time */
-    const moveToFood = (time) => {
-      const targetY = Math.min(730, Math.max(440, food.y + foodSize / 2 + 10));
-      const bounds = getFoodReachBounds(food.y);
-      const targetX = Math.max(
-        bounds.left,
-        Math.min(bounds.right, food.x)
-      );
-      const distance = Math.hypot(targetX - movement.x, targetY - movement.y);
-
-      movement.startX = movement.x;
-      movement.startY = movement.y;
-      movement.targetX = targetX;
-      movement.targetY = targetY;
-      idleAction.type = 'none';
-      if (reducedMotion) {
-        movement.x = targetX;
-        movement.y = targetY;
-        movement.walking = false;
-        movement.pauseUntil = time + 5000;
-        return;
-      }
-
-      movement.walkStartedAt = time;
-      movement.walkDuration = Math.max(700, distance * 5);
-      movement.pauseDuration = 5000;
-      movement.walking = true;
-      idleAction.type = 'none';
-    };
-
-    /** @param {number} time */
-    const updateFoodPhysics = (time) => {
-      if (!food.physicsActive || food.dragging) return;
-
-      const step = Math.min(0.05, Math.max(0, (time - food.lastPointerTime) / 1000));
-      food.lastPointerTime = time;
-      food.velocityY += 900 * step;
-      food.x += food.velocityX * step;
-      food.y += food.velocityY * step;
-
-      const halfSize = foodSize / 2;
-      if (food.x < halfSize || food.x > 800 - halfSize) {
-        food.x = Math.max(halfSize, Math.min(800 - halfSize, food.x));
-        food.velocityX *= -0.35;
-      }
-      if (food.y < halfSize) {
-        food.y = halfSize;
-        food.velocityY *= -0.35;
-      }
-
-      const floorTop = getFloorTop(food.x);
-      if (food.y + halfSize >= floorTop) {
-        food.velocityY = 0;
-        const bounds = getFloorBounds(food.y + halfSize);
-        food.x = Math.max(
-          bounds.left + halfSize,
-          Math.min(bounds.right - halfSize, food.x)
-        );
-        food.velocityX *= Math.max(0, 1 - step * 8);
-
-        if (Math.abs(food.velocityX) < 8) {
-          food.velocityX = 0;
-          food.physicsActive = false;
-          if (food.waitingForPet) {
-            food.waitingForPet = false;
-            moveToFood(time);
-          }
-        }
-      }
-
-      const floorBottom = getFloorBottom(food.x);
-      if (food.y + halfSize > floorBottom) {
-        food.y = floorBottom - halfSize;
-        food.velocityY = 0;
-      }
     };
 
     /** @param {number} time */
@@ -521,31 +348,6 @@
       gaze.inside =
         pointerX >= 0 && pointerX <= 800 && pointerY >= 0 && pointerY <= 800;
 
-      if (food.dragging) {
-        const clampedX = Math.max(0, Math.min(800, pointerX));
-        const clampedY = Math.max(0, Math.min(800, pointerY));
-        const now = performance.now();
-        const elapsed = Math.max(1, now - food.lastPointerTime);
-        food.velocityX = Math.max(-850, Math.min(850, ((clampedX - food.lastPointerX) / elapsed) * 1000));
-        food.velocityY = Math.max(-850, Math.min(850, ((clampedY - food.lastPointerY) / elapsed) * 1000));
-        food.x = clampedX + food.offsetX;
-        food.y = clampedY + food.offsetY;
-        const canvasPadding = foodSize / 2;
-        food.x = Math.max(canvasPadding, Math.min(800 - canvasPadding, food.x));
-        food.y = Math.max(canvasPadding, Math.min(800 - canvasPadding, food.y));
-        food.lastPointerX = clampedX;
-        food.lastPointerY = clampedY;
-        food.lastPointerTime = now;
-        if (reducedMotion) drawFrame(Date.now());
-        canvas.style.cursor = 'grabbing';
-        return;
-      }
-
-      const overFood =
-        pointerX >= food.x - foodSize / 2 &&
-        pointerX <= food.x + foodSize / 2 &&
-        pointerY >= food.y - foodSize / 2 &&
-        pointerY <= food.y + foodSize / 2;
       const depthScale = 0.62 + ((movement.y - 440) / 290) * 0.38;
       const hitWidth = (playerWidth * depthScale) / 2;
       const hitHeight = playerHeight * depthScale;
@@ -555,7 +357,7 @@
         pointerY >= movement.y - hitHeight &&
         pointerY <= movement.y;
 
-      canvas.style.cursor = overFood ? 'grab' : isOverPlayer && isPetIdle() ? 'pointer' : 'default';
+      canvas.style.cursor = isOverPlayer && isPetIdle() ? 'pointer' : 'default';
     };
 
     /** @param {PointerEvent} event */
@@ -563,29 +365,6 @@
       const bounds = canvas.getBoundingClientRect();
       const pointerX = (event.clientX - bounds.left) * (800 / bounds.width);
       const pointerY = (event.clientY - bounds.top) * (800 / bounds.height);
-      const hitFood =
-        pointerX >= food.x - foodSize / 2 &&
-        pointerX <= food.x + foodSize / 2 &&
-        pointerY >= food.y - foodSize / 2 &&
-        pointerY <= food.y + foodSize / 2;
-
-      if (hitFood) {
-        event.preventDefault();
-        food.dragging = true;
-        food.physicsActive = false;
-        food.waitingForPet = false;
-        food.offsetX = food.x - pointerX;
-        food.offsetY = food.y - pointerY;
-        food.lastPointerX = pointerX;
-        food.lastPointerY = pointerY;
-        food.lastPointerTime = performance.now();
-        food.velocityX = 0;
-        food.velocityY = 0;
-        canvas.setPointerCapture(event.pointerId);
-        canvas.style.cursor = 'grabbing';
-        return;
-      }
-
       const depthScale = 0.62 + ((movement.y - 440) / 290) * 0.38;
       const hitWidth = (playerWidth * depthScale) / 2;
       const hitHeight = playerHeight * depthScale;
@@ -599,25 +378,8 @@
       if (hitPlayer) startPetting(Date.now(), pointerX);
     };
 
-    /** @param {PointerEvent} event */
-    const handlePointerUp = (event) => {
-      if (!food.dragging) return;
-
-      food.dragging = false;
-      food.velocityX *= 0.25;
-      food.velocityY *= 0.25;
-      food.physicsActive = true;
-      food.waitingForPet = true;
-      food.lastPointerTime = Date.now();
-      canvas.style.cursor = 'default';
-      if (canvas.hasPointerCapture(event.pointerId)) {
-        canvas.releasePointerCapture(event.pointerId);
-      }
-      if (reducedMotion) startAnimation();
-    };
-
     const handlePointerLeave = () => {
-      if (!food.dragging) canvas.style.cursor = 'default';
+      canvas.style.cursor = 'default';
       gaze.inside = false;
       if (idleAction.type === 'look') idleAction.type = 'none';
     };
@@ -631,12 +393,9 @@
     };
 
     const drawFrame = (time = Date.now()) => {
-      updateFoodPhysics(time);
       updateMovement(time);
       drawRoom();
-      drawFood();
-      drawPlayer(time);
-      drawHunger();
+      if (showCharacter) drawPlayer(time);
     };
 
     circleBody.onload = () => drawFrame();
@@ -671,19 +430,16 @@
 
     const handlePageHide = () => {
       persistMovement();
-      persistHunger();
     };
     window.addEventListener('pagehide', handlePageHide);
     window.addEventListener('pointermove', handlePointerMove);
     canvas.addEventListener('pointerleave', handlePointerLeave);
     canvas.addEventListener('pointerdown', handlePointerDown);
-    window.addEventListener('pointerup', handlePointerUp);
-    window.addEventListener('pointercancel', handlePointerUp);
     canvas.addEventListener('keydown', handleKeyDown);
 
     const animate = () => {
       drawFrame(Date.now());
-      if (!reducedMotion || food.physicsActive) {
+      if (!reducedMotion) {
         animationFrame = window.requestAnimationFrame(animate);
       } else {
         animationFrame = 0;
@@ -695,7 +451,6 @@
     if (!reducedMotion) startAnimation();
     saveInterval = window.setInterval(() => {
       persistMovement();
-      persistHunger();
       drawFrame(Date.now());
     }, 2000);
 
@@ -706,8 +461,6 @@
       window.removeEventListener('pointermove', handlePointerMove);
       canvas.removeEventListener('pointerleave', handlePointerLeave);
       canvas.removeEventListener('pointerdown', handlePointerDown);
-      window.removeEventListener('pointerup', handlePointerUp);
-      window.removeEventListener('pointercancel', handlePointerUp);
       canvas.removeEventListener('keydown', handleKeyDown);
       persistMovement();
     };
@@ -721,7 +474,7 @@
     height="800"
     tabindex="0"
     role="button"
-    aria-label="Pet room. Drag the food box to make the pet walk to it, or click the pet while idle to pet it."
+    aria-label="Pet room. Click the pet while idle to pet it."
   ></canvas>
 </div>
 

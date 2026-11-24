@@ -6,6 +6,8 @@
   const links = [
     { name: 'Home', path: '/' },
     { name: 'Game', path: '/game' },
+    { name: 'Character Creator', path: '/character-creator' },
+    { name: 'Characters', path: '/characters' },
     { name: 'Photo Album', path: '/photo-album' },
     { name: 'Settings', path: '/settings' }
   ];
@@ -33,9 +35,7 @@
     width: 200px;
     flex-shrink: 0;
     height: 100%;
-    background: rgb(3 1 26 / 42%);
-    -webkit-backdrop-filter: blur(18px);
-    backdrop-filter: blur(18px);
+    background: transparent;
     color: #f3f3ff;
     overflow-y: auto;
     border-right: 1px solid rgb(243 243 255 / 55%);

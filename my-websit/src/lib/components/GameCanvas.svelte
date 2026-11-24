@@ -2,7 +2,7 @@
 <canvas
   width="800"
   height="600"
-  aria-label="Tomodachi Life game"
+  aria-label="WEBPET"
 ></canvas>
 
 <style>
